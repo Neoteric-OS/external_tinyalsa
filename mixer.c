@@ -411,6 +411,54 @@ struct mixer_ctl *mixer_get_ctl_by_name(struct mixer *mixer, const char *name)
     return NULL;
 }
 
+/** Gets an instance of mixer control handle, by the mixer control's name and device.
+ *  For instance, if two controls have same name,
+ *  e.g. 'Playback Channel map', then PCM device returns the specific control.
+ * @param mixer An initialized mixer handle.
+ * @param name The control's name in the given mixer.
+ * @param device The PCM device
+ * @returns A handle to the mixer control.
+ * @ingroup libtinyalsa-mixer
+ */
+struct mixer_ctl *mixer_get_ctl_by_name_and_device(struct mixer *mixer,
+                                                   const char *name,
+                                                   unsigned int device)
+{
+    struct mixer_ctl_group *grp;
+    unsigned int n;
+    struct mixer_ctl *ctl;
+
+    if (!mixer || !name) {
+        return NULL;
+    }
+
+    if (mixer->hw_grp) {
+        grp = mixer->hw_grp;
+        ctl = grp->ctl;
+
+        for (n = 0; n < grp->count; n++) {
+            if (!strcmp(name, (char*) ctl[n].info->id.name) &&
+                    device == ctl[n].info->id.device) {
+                return ctl + n;
+            }
+        }
+    }
+
+    if (mixer->virt_grp) {
+        grp = mixer->virt_grp;
+        ctl = grp->ctl;
+
+        for (n = 0; n < grp->count; n++) {
+            if (!strcmp(name, (char*) ctl[n].info->id.name) &&
+                    device == ctl[n].info->id.device) {
+                return ctl + n;
+            }
+        }
+    }
+
+    return NULL;
+}
+
 void mixer_ctl_update(struct mixer_ctl *ctl)
 {
     struct mixer_ctl_group *grp;
@@ -778,6 +826,14 @@ const char *mixer_ctl_get_enum_string(struct mixer_ctl *ctl,
         return NULL;
 
     return (const char *)ctl->ename[enum_id];
+}
+
+unsigned int mixer_ctl_get_device(const struct mixer_ctl *ctl)
+{
+    if (!ctl)
+        return UINT_MAX;
+
+    return ctl->info->id.device;
 }
 
 int mixer_ctl_set_enum_by_string(struct mixer_ctl *ctl, const char *string)

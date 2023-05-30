@@ -308,6 +308,9 @@ const char *mixer_get_name(struct mixer *mixer);
 unsigned int mixer_get_num_ctls(struct mixer *mixer);
 struct mixer_ctl *mixer_get_ctl(struct mixer *mixer, unsigned int id);
 struct mixer_ctl *mixer_get_ctl_by_name(struct mixer *mixer, const char *name);
+struct mixer_ctl *mixer_get_ctl_by_name_and_device(struct mixer *mixer,
+                                                   const char *name,
+                                                   unsigned int device);
 
 /* Get info about mixer controls */
 const char *mixer_ctl_get_name(struct mixer_ctl *ctl);
@@ -317,6 +320,7 @@ unsigned int mixer_ctl_get_num_values(struct mixer_ctl *ctl);
 unsigned int mixer_ctl_get_num_enums(struct mixer_ctl *ctl);
 const char *mixer_ctl_get_enum_string(struct mixer_ctl *ctl,
                                       unsigned int enum_id);
+unsigned int mixer_ctl_get_device(const struct mixer_ctl *ctl);
 
 /* Some sound cards update their controls due to external events,
  * such as HDMI EDID byte data changing when an HDMI cable is
